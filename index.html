@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Product Design Flashcards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       oklch(13% 0.018 50);
+  --surface:  oklch(18% 0.022 50);
+  --surface2: oklch(23% 0.026 50);
+  --border:   oklch(28% 0.018 50);
+  --accent:   oklch(73% 0.14 68);
+  --text:     oklch(93% 0.008 50);
+  --muted:    oklch(58% 0.012 50);
+  --cat-color: oklch(73% 0.14 68);
+  --cat-msvhd:    oklch(73% 0.14 68);
+  --cat-psych:    oklch(71% 0.13 175);
+  --cat-workflow: oklch(72% 0.15 35);
+  --cat-visual:   oklch(72% 0.11 300);
+}
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Header ─────────────────────────────── */
+.header {
+  padding: 18px 20px 10px;
+  flex-shrink: 0;
+}
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 14px;
+}
+.title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 21px;
+  letter-spacing: -0.025em;
+}
+.counter {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+}
+
+/* ── Category tabs ───────────────────────── */
+.cats {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.cats::-webkit-scrollbar { display: none; }
+
+.cat-btn {
+  flex-shrink: 0;
+  padding: 5px 13px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.cat-btn.active {
+  border-color: var(--cat-color);
+  background: color-mix(in oklch, var(--cat-color) 14%, transparent);
+  color: var(--cat-color);
+}
+
+/* ── Progress ────────────────────────────── */
+.progress {
+  height: 1.5px;
+  background: var(--border);
+  margin: 10px 20px 0;
+  flex-shrink: 0;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Card area ───────────────────────────── */
+.card-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 20px;
+  overflow: hidden;
+}
+.scene {
+  width: 100%;
+  max-width: 420px;
+  height: 100%;
+  max-height: 500px;
+  perspective: 1400px;
+}
+.card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.card.flipped { transform: rotateY(180deg); }
+
+.face {
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  padding: 26px 22px 22px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+.front { background: var(--surface); }
+.back  {
+  background: var(--surface2);
+  transform: rotateY(180deg);
+  overflow-y: auto;
+}
+
+/* Front ─── */
+.f-tag {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--cat-color);
+  margin-bottom: 18px;
+  flex-shrink: 0;
+}
+.f-num {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 72px;
+  line-height: 1;
+  color: var(--cat-color);
+  opacity: 0.12;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+.f-q {
+  font-family: 'Instrument Serif', serif;
+  font-size: 23px;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  flex: 1;
+}
+.f-hint {
+  margin-top: 18px;
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+.f-hint::before {
+  content: '';
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--cat-color);
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+/* Back ─── */
+.b-tag {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--cat-color);
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+.b-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 19px;
+  line-height: 1.2;
+  color: var(--text);
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+.b-body {
+  font-size: 13.5px;
+  line-height: 1.62;
+  color: oklch(from var(--text) l c h / 0.9);
+}
+.b-body strong { color: var(--cat-color); font-weight: 500; }
+
+.b-body ul {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+}
+.b-body li {
+  padding: 3px 0 3px 16px;
+  position: relative;
+}
+.b-body li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--cat-color);
+  opacity: 0.5;
+  font-size: 11px;
+  top: 6px;
+}
+.b-body .pill {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 12px;
+  background: color-mix(in oklch, var(--cat-color) 12%, transparent);
+  color: var(--cat-color);
+  padding: 4px 10px;
+  border-radius: 5px;
+  line-height: 1.5;
+}
+.b-body .icon-list li::before {
+  content: attr(data-icon);
+  opacity: 1;
+  font-size: 11px;
+  top: 4px;
+}
+
+/* ── Nav ─────────────────────────────────── */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 6px 20px 22px;
+  flex-shrink: 0;
+}
+.nav-btn {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 17px;
+  transition: background 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.nav-btn:active { background: var(--surface2); transform: scale(0.93); }
+.nav-btn:disabled { opacity: 0.25; cursor: default; }
+.dots { display: flex; gap: 6px; align-items: center; }
+.dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: all 0.25s;
+}
+.dot.active { background: var(--accent); transform: scale(1.4); }
+
+/* Slide animations */
+@keyframes slideFromRight { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes slideFromLeft  { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
+.anim-right .face { animation: slideFromRight 0.3s cubic-bezier(0.16,1,0.3,1); }
+.anim-left  .face { animation: slideFromLeft  0.3s cubic-bezier(0.16,1,0.3,1); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-row">
+    <span class="title">Design Flashcards</span>
+    <span class="counter" id="counter">1 / 19</span>
+  </div>
+  <div class="cats" id="cats"></div>
+</div>
+<div class="progress"><div class="progress-fill" id="progress-fill"></div></div>
+
+<div class="card-area">
+  <div class="scene" id="scene">
+    <div class="card" id="card">
+      <div class="face front">
+        <div class="f-tag"  id="f-tag"></div>
+        <div class="f-num"  id="f-num"></div>
+        <div class="f-q"    id="f-q"></div>
+        <div class="f-hint">Tap card to reveal answer</div>
+      </div>
+      <div class="face back">
+        <div class="b-tag"   id="b-tag"></div>
+        <div class="b-title" id="b-title"></div>
+        <div class="b-body"  id="b-body"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="nav-btn" id="prev">&#8592;</button>
+  <div class="dots" id="dots"></div>
+  <button class="nav-btn" id="next">&#8594;</button>
+</div>
+
+<script>
+const CATS = [
+  { id:'all',      label:'All',         color:'oklch(73% 0.14 68)' },
+  { id:'msvhd',    label:'MSVHD',       color:'oklch(73% 0.14 68)' },
+  { id:'psych',    label:'Psychology',  color:'oklch(71% 0.13 175)' },
+  { id:'workflow', label:'Workflow',    color:'oklch(72% 0.15 35)' },
+  { id:'visual',   label:'Visuals',     color:'oklch(72% 0.11 300)' },
+];
+
+const CAT_LABELS = {
+  msvhd:'MSVHD Framework', psych:'Product Psychology',
+  workflow:'Workflow', visual:'Visual Design'
+};
+
+const ALL = [
+  // ── MSVHD ─────────────────────────────────────────────────────────────
+  { cat:'msvhd',
+    q:'What does the M in MSVHD stand for — and what core question does it answer?',
+    title:'M — Message (Copywriting)',
+    body:`<strong>Core question:</strong> "Why should I care, right now?"<br><br>
+<ul>
+<li>Run the <strong>Copy Swap Test</strong> — remove logos and branding. Could a competitor use the exact same words? If yes, rewrite it.</li>
+<li>Write a <strong>Call-to-Value</strong>, not a call-to-action. "Create Your Website" beats "Sign Up Now"</li>
+<li>Avoid landing page words: unlock, unleash, empower, supercharge</li>
+<li>Cut every word that isn't earning its place — Kaplan's Law</li>
+</ul>
+<span class="pill">Prompt tip: Write copy before designing anything. Give Claude the headline + CTA first so the layout serves the message.</span>`
+  },
+  { cat:'msvhd',
+    q:'What does the S in MSVHD stand for — and what core question does it answer?',
+    title:'S — Structure (Layout)',
+    body:`<strong>Core question:</strong> "Is the screen understandable at a glance?"<br><br>
+<ul>
+<li><strong>Proximity</strong> — tight spacing within groups, bigger spacing between groups</li>
+<li><strong>Alignment</strong> — pick one grid, commit to it. 4px spacing increments</li>
+<li><strong>Simplicity</strong> — one primary action per region, remove decorative styling</li>
+<li><strong>Continuity</strong> — one clear scan path. No zig-zag reading</li>
+</ul>
+<span class="pill">Prompt tip: Ask for wireframe output only — no colors. Structural problems are much easier to spot in grayscale.</span>`
+  },
+  { cat:'msvhd',
+    q:'What does the V in MSVHD stand for — and what core question does it answer?',
+    title:'V — Visibility (Accessibility)',
+    body:`<strong>Core question:</strong> "Can everyone see, reach, and use this?"<br><br>
+<ul>
+<li>Minimum <strong>4.5:1 contrast ratio</strong> for normal text; 3:1 for large text (24px+)</li>
+<li>Never use <strong>color alone</strong> to convey meaning — 1 in 12 men are colorblind</li>
+<li>Targets must be hittable by tired, one-handed, distracted users</li>
+<li>Controls must <strong>look interactive</strong> — if it does something, it must look like it does</li>
+</ul>
+<span class="pill">Design for situational disability too. Bright sunlight, broken arm, holding coffee — these are common situations.</span>`
+  },
+  { cat:'msvhd',
+    q:'What does the H in MSVHD stand for — and what core question does it answer?',
+    title:'H — Hierarchy (Emphasis)',
+    body:`<strong>Core question:</strong> "Is the most important thing unmissable?"<br><br>
+<ul>
+<li>Hierarchy is <strong>relative</strong> — one element can only stand out when others step back</li>
+<li><strong>Foggy Glasses Test</strong> — squint at the screen. Is the hero element still obvious? If everything blurs equally, hierarchy is broken</li>
+<li>The 6 dials: Size, Color, Space, Placement, Visualization, Motion</li>
+<li>Most hierarchy comes from <strong>turning things down</strong>, not turning them up</li>
+</ul>
+<span class="pill">Mistake to avoid: cranking every dial to max. Establish a calm baseline — then choose 1–2 dials to lead with.</span>`
+  },
+  { cat:'msvhd',
+    q:'What does the D in MSVHD stand for — and what core question does it answer?',
+    title:'D — Delight (Reward)',
+    body:`<strong>Core question:</strong> "Does the screen make the user feel something meaningful?"<br><br>
+<strong>The Delight Trifecta — match the dominant emotion:</strong>
+<ul>
+<li>🛡️ <strong>Control</strong> — "Am I safe? Do I know what's happening?"</li>
+<li>🪴 <strong>Competence</strong> — "Am I improving? Did I do well?"</li>
+<li>🤝 <strong>Recognition</strong> — "Am I seen? Does this notice me?"</li>
+</ul>
+<span class="pill">Shy delight is worse than none. Surface the payoff explicitly: "Saved 1 hour," "Delivered today." Don't hide the reward.</span>`
+  },
+
+  // ── Product Psychology ─────────────────────────────────────────────────
+  { cat:'psych',
+    q:'Users aren\'t completing the action you want. What\'s the first diagnostic step before recommending anything?',
+    title:'COM-B Triage — Diagnose First',
+    body:`<strong>Classify the barrier before prescribing a fix:</strong><br><br>
+<ul>
+<li><strong>Capability</strong> — Don't know what to do / how → simplify, add guidance, reduce language complexity</li>
+<li><strong>Opportunity</strong> — Environment blocks them → remove friction, fix broken flows, improve accessibility</li>
+<li><strong>Motivation</strong> — Don't want to / feel uncertain → add value, reduce perceived risk, add social reinforcement</li>
+<li><strong>Completion</strong> — Started but abandoned → Sunk Cost + Goal Gradient</li>
+<li><strong>Retention</strong> — Completed onboarding but don't return → Endowment Effect, Variable Reward</li>
+</ul>
+<span class="pill">Most real problems have a primary AND secondary barrier. Identify primary first.</span>`
+  },
+  { cat:'psych',
+    q:'When should you apply the Fogg Behavior Model — and what does B = MAP mean in practice?',
+    title:'Fogg Model — B = MAP',
+    body:`Apply when users <strong>seem to understand the action</strong> but still aren't doing it.<br><br>
+<strong>All three must align simultaneously:</strong>
+<ul>
+<li><strong>Motivation low</strong> → add progress indicators, social proof, value reinforcement</li>
+<li><strong>Ability low</strong> → reduce steps, simplify, add inline help</li>
+<li><strong>Prompt absent or mistimed</strong> → fix CTA placement, add timely triggers</li>
+</ul>
+<span class="pill">Increasing motivation when ability is the problem wastes effort. Diagnose which element is below threshold first.</span>`
+  },
+  { cat:'psych',
+    q:'How do you apply Loss Aversion in product design — and when should you avoid it?',
+    title:'Loss Aversion',
+    body:`Losses feel <strong>~2× more powerful</strong> than equivalent gains (Kahneman & Tversky).<br><br>
+<strong>Use at commitment points:</strong>
+<ul>
+<li>Checkout, upgrade, cancellation, delete flows</li>
+<li>"Don't lose X" outperforms "Get X" at the moment of decision</li>
+<li>Free trial end: "Your Pro features expire in 3 days" — name what's lost</li>
+<li>Cancellation flow: list the specific things they'll give up</li>
+</ul>
+<span class="pill">⚠️ Don't use on discovery/awareness content. Loss framing creates anxiety where you want curiosity. Use at decision points only.</span>`
+  },
+  { cat:'psych',
+    q:'Users abandon multi-step flows halfway through. What two effects do you stack to bring them back?',
+    title:'Sunk Cost + Goal Gradient',
+    body:`Two distinct mechanisms that compound each other:<br><br>
+<strong>Sunk Cost</strong> — past investment creates reluctance to quit
+<ul><li>"You've completed 3 of 5 integrations" — name what's already done</li></ul>
+<strong>Goal Gradient</strong> — proximity to the finish accelerates motivation
+<ul>
+<li>"You're 80% done" outperforms "4 of 5 steps" — percentage feels closer</li>
+<li>Reference the specific remaining steps, not just a count</li>
+</ul>
+<span class="pill">Stack both: reference past investment AND show how close they are to the finish line simultaneously.</span>`
+  },
+  { cat:'psych',
+    q:'How do you increase free trial-to-paid conversion using ownership psychology?',
+    title:'Endowment Effect + IKEA Effect',
+    body:`<strong>Endowment Effect</strong> — users value what feels like theirs
+<ul>
+<li>Let users name, configure, and personalize from day one of the trial</li>
+<li>At cancellation: "Your 47 saved reports, your team's workspace, your history"</li>
+</ul>
+<strong>IKEA Effect</strong> — what users helped build, they value more
+<ul>
+<li>Replace passive walkthroughs with interactive steps — "Try it" beats "Watch this"</li>
+<li>Every config step must reach a satisfying conclusion — incomplete creation doesn't trigger the effect</li>
+</ul>
+<span class="pill">Get users building things early, before the trial ends. Ownership must be established before Loss Aversion can work.</span>`
+  },
+  { cat:'psych',
+    q:'Why do users say "I\'ll set it up later" — and never do? How do you fix it?',
+    title:'Hyperbolic Discounting (Present Bias)',
+    body:`Users discount future rewards heavily. <strong>Immediate rewards drive behavior far more than equivalent future ones.</strong><br><br>
+<ul>
+<li>Front-load value — deliver an insight or win <strong>before</strong> asking for setup work</li>
+<li>"This will save you hours later" almost never converts on its own</li>
+<li>For habit-forming features: build <strong>immediate feedback loops</strong>, not delayed payoff</li>
+<li>Monthly billing reduces commitment barrier — the "cancel anytime" is an immediate certainty vs. annual lock-in</li>
+</ul>
+<span class="pill">If a feature only pays off over time, simulate the payoff upfront. Show the outcome before you ask for the input.</span>`
+  },
+
+  // ── Workflow ──────────────────────────────────────────────────────────
+  { cat:'workflow',
+    q:'What should you always define before opening any design tool or writing a design prompt?',
+    title:'Content First — Always',
+    body:`<strong>Copy defines layout. Layout should never define copy.</strong><br><br>
+<strong>Before any design prompt, write:</strong>
+<ul>
+<li>The <strong>headline</strong>: answers "why should I care, right now?"</li>
+<li>The <strong>CTA</strong>: call-to-value, not call-to-action</li>
+<li>2–3 supporting points max</li>
+<li>The ONE action this screen needs the user to take</li>
+</ul>
+<strong>Prompt template:</strong> <em>"Here is the headline, CTA, and 3 supporting points. Design a layout around these exactly — do not change the copy."</em>
+<span class="pill">Without this, Claude fills the layout with placeholders and you end up redesigning twice — once to fix the layout, once to fix the copy.</span>`
+  },
+  { cat:'workflow',
+    q:'What\'s the right order for design prompting to minimize wasted tokens and rework?',
+    title:'Content → Wireframe → High-Fidelity',
+    body:`<strong>Always work in this sequence:</strong><br><br>
+<strong>1. Content</strong> — headlines, CTAs, copy, what goes on each screen<br>
+<strong>2. Wireframe</strong> — layout, spacing, component structure. No colors, no fonts yet.<br>
+<strong>3. High-Fidelity</strong> — typography, color, motion, polish<br><br>
+<strong>Why it matters for tokens:</strong>
+<ul>
+<li>Fixing structure at wireframe stage = 1 focused prompt</li>
+<li>Fixing structure at HiFi stage = 3–5 prompts + broken styles</li>
+<li>Skipping stages creates compounding rework — never jump ahead</li>
+</ul>
+<span class="pill">Rule: if you can't read the hierarchy in grayscale, color cannot fix it. Lock structure before adding style.</span>`
+  },
+  { cat:'workflow',
+    q:'How do you get more output per Claude conversation and avoid wasted tokens?',
+    title:'Token Efficiency — 5 Rules',
+    body:`<ul>
+<li><strong>Front-load context</strong> — audience, goal, and constraints in one opening message. Claude can't guess what you haven't said.</li>
+<li><strong>Lock decisions early</strong> — "I've decided X. Now do Y." Stops Claude re-exploring already settled choices.</li>
+<li><strong>Work in stages</strong> — content → wireframe → HiFi. Review between each. Never do all at once.</li>
+<li><strong>Reference earlier work</strong> — "Using the MSVHD audit from earlier, now fix H — Hierarchy only." Anchors context.</li>
+<li><strong>Specify format exactly</strong> — "Output as a React component, dark theme, Instrument Serif + DM Sans." Saves clarification rounds.</li>
+</ul>
+<span class="pill">The biggest token waste: vague prompt → wrong output → correction loop. One sharp prompt beats three vague ones every time.</span>`
+  },
+  { cat:'workflow',
+    q:'How do you prompt Claude for the fastest, most actionable MSVHD audit?',
+    title:'The Fast Audit Prompt',
+    body:`<strong>Upload the screenshot and send:</strong><br><br>
+<em>"Run a full MSVHD audit. Score each pillar 0–5. Give me:<br>
+1. Overall impression (2 sentences)<br>
+2. Score + priority fix for each pillar<br>
+3. Top 3 changes ranked by impact"</em><br><br>
+<strong>Then chain follow-up prompts by pillar:</strong><br>
+<em>"Fix the H — Hierarchy problem you identified. Keep all other pillars unchanged. Show the updated layout."</em><br><br>
+<span class="pill">Single-pillar follow-ups use fewer tokens and produce more precise fixes than asking Claude to "make it better."</span>`
+  },
+
+  // ── Visual Design ─────────────────────────────────────────────────────
+  { cat:'visual',
+    q:'What are the fastest moves to make a vibe-coded UI feel intentionally designed — not AI-generated?',
+    title:'Distinct UI — The 6 Moves',
+    body:`<ul>
+<li><strong>Commit to a type personality</strong> — unusual font pairing, not Inter/Roboto as your only font</li>
+<li><strong>Tint your neutrals</strong> — pure gray reads as template. Even 2% brand hue in your surfaces reads as intentional</li>
+<li><strong>Use color asymmetrically</strong> — one dominant, one accent, one neutral. Not equal distribution</li>
+<li><strong>Break the grid 1–2 places</strong> — perfect alignment everywhere reads as AI output</li>
+<li><strong>Vary card sizes</strong> — identical card grids are the single most visible AI fingerprint</li>
+<li><strong>Add one unexpected element</strong> — a texture, pattern, oversized typographic element, or asymmetric composition</li>
+</ul>
+<span class="pill">The AI Slop Test: if someone said "AI made this," would they believe it immediately? If yes — that's the problem to solve.</span>`
+  },
+  { cat:'visual',
+    q:'What typography decisions signal that a UI was deliberately designed — not templated?',
+    title:'Typography for Distinct UI',
+    body:`<strong>5 decisions that separate intentional from templated:</strong>
+<ul>
+<li><strong>3 weights max, used dramatically</strong> — thin headlines + bold CTAs. Not gradual increments.</li>
+<li><strong>Mix serif + sans-serif</strong> — display serif for emotional moments, sans-serif for UI chrome and labels</li>
+<li><strong>Letter-spacing on caps</strong> — +0.05–0.10em on labels, tags, and categories. Never on body copy.</li>
+<li><strong>Line-height contrast</strong> — tight headings (1.1–1.2), open body (1.5–1.65)</li>
+<li><strong>Make size jumps extreme</strong> — the contrast between heading and body should feel exaggerated</li>
+</ul>
+<span class="pill">Good pairings: Instrument Serif + DM Sans · Fraunces + Plus Jakarta Sans · Editorial New + Geist Sans</span>`
+  },
+  { cat:'visual',
+    q:'What makes a product color system feel professional rather than amateurish?',
+    title:'Color System That Works',
+    body:`<strong>5 principles of a professional color system:</strong>
+<ul>
+<li><strong>One dominant + one accent</strong> — not a rainbow. Protect the accent's attention value jealously.</li>
+<li><strong>Use OKLCH</strong> — perceptually uniform, predictable lightness steps. Not HSL. Not hex picking.</li>
+<li><strong>Tint all surfaces toward brand hue</strong> — even a 2% lean makes backgrounds feel cohesive, not neutral</li>
+<li><strong>Only one element gets the accent per view</strong> — the moment it appears everywhere, it loses its power</li>
+<li><strong>Test in grayscale first</strong> — if hierarchy breaks without color, color cannot fix it</li>
+</ul>
+<span class="pill">Never pure #000 or #fff. Never the AI palette: cyan-on-dark + purple-to-blue gradients + neon glow accents.</span>`
+  },
+  { cat:'visual',
+    q:'Quick check: what patterns immediately reveal that a UI was AI-generated?',
+    title:'Anti-AI-Slop Checklist',
+    body:`<strong>Red flags to eliminate:</strong>
+<ul class="icon-list">
+<li data-icon="❌">Cyan-on-dark with purple-to-blue gradients</li>
+<li data-icon="❌">Every section wrapped in a card — cards inside cards</li>
+<li data-icon="❌">Glassmorphism / glow borders used decoratively</li>
+<li data-icon="❌">Gradient text on headings or key metrics</li>
+<li data-icon="❌">Rounded icon square above every heading</li>
+<li data-icon="❌">Identical grid: same card size repeated endlessly</li>
+<li data-icon="❌">Same padding and spacing everywhere — no rhythm</li>
+<li data-icon="❌">Inter or Roboto as the sole font</li>
+<li data-icon="✅">Ask: would someone immediately guess AI made this?</li>
+</ul>`
+  },
+];
+
+let activeCat = 'all';
+let filtered = [...ALL];
+let idx = 0;
+let flipped = false;
+
+// Build tabs
+const catsEl = document.getElementById('cats');
+CATS.forEach(c => {
+  const btn = document.createElement('button');
+  btn.className = 'cat-btn' + (c.id === 'all' ? ' active' : '');
+  btn.style.setProperty('--cat-color', c.color);
+  btn.textContent = c.label;
+  btn.addEventListener('click', () => {
+    activeCat = c.id;
+    filtered = c.id === 'all' ? [...ALL] : ALL.filter(d => d.cat === c.id);
+    idx = 0; flipped = false;
+    document.getElementById('card').classList.remove('flipped');
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render('right');
+    renderDots();
+  });
+  catsEl.appendChild(btn);
+});
+
+function catColor(id) { return CATS.find(c => c.id === id)?.color || CATS[0].color; }
+
+function render(dir) {
+  if (!filtered.length) return;
+  const d = filtered[idx];
+  const color = catColor(d.cat);
+  document.documentElement.style.setProperty('--cat-color', color);
+
+  document.getElementById('f-tag').textContent   = CAT_LABELS[d.cat];
+  document.getElementById('f-num').textContent   = String(idx + 1).padStart(2, '0');
+  document.getElementById('f-q').textContent     = d.q;
+  document.getElementById('b-tag').textContent   = CAT_LABELS[d.cat];
+  document.getElementById('b-title').textContent = d.title;
+  document.getElementById('b-body').innerHTML    = d.body;
+  document.getElementById('counter').textContent = `${idx + 1} / ${filtered.length}`;
+  document.getElementById('progress-fill').style.width = `${((idx + 1) / filtered.length) * 100}%`;
+  document.getElementById('prev').disabled = idx === 0;
+  document.getElementById('next').disabled = idx === filtered.length - 1;
+
+  const scene = document.getElementById('scene');
+  scene.classList.remove('anim-left', 'anim-right');
+  void scene.offsetWidth;
+  if (dir === 'left')  scene.classList.add('anim-left');
+  if (dir === 'right') scene.classList.add('anim-right');
+}
+
+function renderDots() {
+  const el = document.getElementById('dots');
+  el.innerHTML = '';
+  const total = Math.min(filtered.length, 9);
+  const start = Math.max(0, Math.min(idx - 4, filtered.length - total));
+  for (let i = start; i < start + total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === idx ? ' active' : '');
+    el.appendChild(d);
+  }
+}
+
+function go(dir) {
+  if (dir === 1 && idx < filtered.length - 1) {
+    idx++; flipped = false;
+    document.getElementById('card').classList.remove('flipped');
+    render('left'); renderDots();
+  } else if (dir === -1 && idx > 0) {
+    idx--; flipped = false;
+    document.getElementById('card').classList.remove('flipped');
+    render('right'); renderDots();
+  }
+}
+
+document.getElementById('card').addEventListener('click', () => {
+  flipped = !flipped;
+  document.getElementById('card').classList.toggle('flipped', flipped);
+});
+document.getElementById('prev').addEventListener('click', () => go(-1));
+document.getElementById('next').addEventListener('click', () => go(1));
+
+// Swipe
+let tx = 0, ty = 0;
+const scene = document.getElementById('scene');
+scene.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+scene.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  const dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+}, { passive: true });
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') go(1);
+  else if (e.key === 'ArrowLeft') go(-1);
+  else if (e.key === ' ' || e.key === 'Enter') {
+    flipped = !flipped;
+    document.getElementById('card').classList.toggle('flipped', flipped);
+  }
+});
+
+render(); renderDots();
+</script>
+</body>
+</html>
